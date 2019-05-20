@@ -209,10 +209,15 @@ class ReLU:
         out = None
         # =============== EDIT HERE ===============
 
+        out = z
+        self.zero_mask = np.zeros_like(z)
 
-
-
-
+        for i in range(0, z.shape[0]):
+            if z[i] < 0:
+                self.zero_mask[i] = 1
+                out[i] = 0
+            else:
+                out[i] = z[i]
 
         # =========================================
         return out
@@ -234,9 +239,12 @@ class ReLU:
         dz = None
         # =============== EDIT HERE ===============
 
-
-
-
+        dz = d_prev
+        for i in range(0, d_prev.shape[0]):
+            if self.zero_mask[i] == 1:
+                dz[i] = 0
+            else:
+                dz[i] = d_prev[i]
 
         # =========================================
         return dz
@@ -286,9 +294,6 @@ class Sigmoid:
         """
         dz = None
         # =============== EDIT HERE ===============
-
-
-
 
 
         # =========================================
