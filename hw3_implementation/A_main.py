@@ -43,6 +43,6 @@ pred = np.squeeze(pred)
 # ========  Edit here =========
 result = evaluation_test1(test_y, pred, at=90)
 # =============================
-'''
+
 for key in result.keys():
-    print(key, '\t\t\t:\t\t %.6f' % result[key])'''
+    print(key, '\t\t\t:\t\t %.6f' % result[key])

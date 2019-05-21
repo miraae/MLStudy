@@ -34,9 +34,22 @@ def Precision(label, pred):
     #         [output]
     #         - precision : (scalar, float), Computed precision score
     # ========================= EDIT HERE =========================
-    precision = None
+    precision = 0.
 
+    nTP = 0
+    nPP = 0
 
+    n = label.shape[0]
+    for i in range(0, n):
+        if pred[i] == 1:
+            nPP += 1
+            if label[i] == 1:
+                nTP += 1
+
+    if nPP == 0:
+        return 1
+    else:
+        precision = nTP / nPP
 
     # =============================================================
     return precision
@@ -52,9 +65,19 @@ def Recall(label, pred):
     #         [output]
     #         - recall : (scalar, float), Computed recall score
     # ========================= EDIT HERE =========================
-    recall = None
+    recall = 0.
 
+    nTP = 0
+    nAP = 0
 
+    n = label.shape[0]
+    for i in range(0, n):
+        if label[i] == 1:
+            nAP += 1
+            if pred[i] == 1:
+                nTP += 1
+
+    recall = nTP / nAP
 
     # =============================================================
     return recall
@@ -72,6 +95,10 @@ def F_measure(label, pred):
     # ========================= EDIT HERE =========================
     F_score = None
 
+    precision = Precision(label, pred)
+    recall = Recall(label, pred)
+
+    F_score = (2 * precision * recall) / (precision + recall)
 
     # =============================================================
     return F_score
@@ -88,8 +115,29 @@ def MAP(label, hypo, at = 10):
     #         [output]
     #         - Map : (scalar, float), Computed MAP score
     # ========================= EDIT HERE =========================
-    Map = None
+    Map = 0.
+    nQuery = label.shape[0]
+    nElem = label.shape[1]
 
+    ap = list()
+
+    pred = np.zeros_like(hypo, dtype=np.int32)
+    pred[hypo >= 0.5] = 1
+
+    for i in range(0, nQuery):
+        nPP = 0
+        nTP = 0
+        precision = list()
+        for j in range(0, nElem):
+            if pred[i][j] == 1:
+                nPP += 1
+                if label[i][j] == 1:
+                    nTP += 1
+                    if j < at:
+                        precision.append(nTP/nPP)
+        ap.append(np.sum(precision) / nPP)
+
+    Map = np.mean(ap)
 
     # =============================================================
     return Map
@@ -110,25 +158,62 @@ def nDCG(label, hypo, at = 10):
 
     def DCG(label, hypo, at=10):
         # ========================= EDIT HERE =========================
-        dcg = None
+        dcg = 0.
+        n =  label.shape[0]
+        nPP = 0
 
-
-
+        n = label.shape[0]
+        for i in range(0,n):
+            if hypo[i] == 1:
+                nPP += 1
+                if label[i] == 1:
+                    dcg += (1 / np.log2(nPP+1))
+            if nPP >= at:
+                break
 
         # =============================================================
         return dcg
 
     def IDCG(label, hypo, at=10):
         # ========================= EDIT HERE =========================
-        idcg = None
+        idcg = 0.
+        n = label.shape[0]
+        nPP = 0
+        nTP = 0
 
+        for i in range(0, n):
+            if hypo[i] == 1 and label[i] == 1:
+                nTP += 1
 
+        nRV = at
+        if at > nTP:
+            nRV = nTP
 
+        for i in range(0, nRV):
+            idcg += (1 / np.log2(i+2))
 
         # =============================================================
         return idcg
     # ========================= EDIT HERE =========================
     ndcg = None
+    ndcgs = list()
+
+    pred = np.zeros_like(hypo, dtype=np.int32)
+    pred[hypo >= 0.5] = 1
+    nQuery = label.shape[0]
+    nElem = label.shape[1]
+
+    for n in range(0, nQuery):
+        curLabel = label[n]
+        curPred = pred[n]
+        dcg = DCG(curLabel, curPred, at)
+        idcg = IDCG(curLabel, curPred, at)
+        if idcg == 0:
+            ndcgs.append(0.)
+        else:
+            ndcgs.append(dcg / idcg)
+
+    ndcg = np.mean(ndcgs)
 
     # =============================================================
     return ndcg
