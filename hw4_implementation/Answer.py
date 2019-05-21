@@ -330,6 +330,21 @@ class Sigmoid:
         dz = None
         # =============== EDIT HERE ===============
 
+        dz = np.zeros(d_prev.shape, float)
+
+        dim = len(d_prev.shape)
+
+        if dim == 1:
+            for i in range(0, d_prev.shape[0]):
+                if d_prev[i] != 0:
+                    out = self.out[i]
+                    dz[i] = out * (1 - out)
+        elif dim == 2:
+            for i in range(0, d_prev.shape[0]):
+                for j in range(0, d_prev.shape[1]):
+                    if d_prev[i][j] != 0:
+                        out = self.out[i][j]
+                        dz[i][j] = out * (1 - out)
 
         # =========================================
         return dz
