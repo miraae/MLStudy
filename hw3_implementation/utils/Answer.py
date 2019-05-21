@@ -135,7 +135,9 @@ def MAP(label, hypo, at = 10):
                     nTP += 1
                     if j < at:
                         precision.append(nTP/nPP)
-        ap.append(np.sum(precision) / nPP)
+        if nPP != 0:
+            ap.append(np.sum(precision) / nPP)
+
 
     Map = np.mean(ap)
 
@@ -163,13 +165,11 @@ def nDCG(label, hypo, at = 10):
         nPP = 0
 
         n = label.shape[0]
-        for i in range(0,n):
+        for i in range(0, at):
             if hypo[i] == 1:
                 nPP += 1
                 if label[i] == 1:
                     dcg += (1 / np.log2(nPP+1))
-            if nPP >= at:
-                break
 
         # =============================================================
         return dcg
