@@ -43,13 +43,23 @@ def sign(z):
     sign_z = None
     # =============== EDIT HERE ===============
 
-    sign_z = z
-    for i in range(0, z.shape[0]):
-        for j in range(0, z.shape[1]):
+    sign_z = np.zeros_like(z)
+
+    dim = len(z.shape)
+
+    if dim == 1:
+        for i in range(0, z.shape[0]):
             if z[i][j] > 0:
-                sign_z[i][j] = 1
+                sign_z[i] = 1
             else:
-                sign_z[i][j] = -1
+                sign_z[i] = -1
+    elif dim == 2:
+        for i in range(0, z.shape[0]):
+            for j in range(0, z.shape[1]):
+                if z[i][j] > 0:
+                    sign_z[i][j] = 1
+                else:
+                    sign_z[i][j] = -1
 
     # =========================================
     return sign_z
@@ -209,15 +219,25 @@ class ReLU:
         out = None
         # =============== EDIT HERE ===============
 
-        out = z
+        out = np.zeros_like(z)
         self.zero_mask = np.zeros_like(z)
+        dim = len(z.shape)
 
-        for i in range(0, z.shape[0]):
-            if z[i] < 0:
-                self.zero_mask[i] = 1
-                out[i] = 0
-            else:
-                out[i] = z[i]
+        if dim == 1:
+            for i in range(0, z.shape[0]):
+                if z[i] < 0:
+                    self.zero_mask[i] = 1
+                    out[i] = 0
+                else:
+                    out[i] = z[i]
+        elif dim == 2:
+            for i in range(0, z.shape[0]):
+                for j in range(0, z.shape[1]):
+                    if z[i][j] < 0:
+                        self.zero_mask[i][j] = 1
+                        out[i][j] = 0
+                    else:
+                        out[i][j] = z[i][j]
 
         # =========================================
         return out
@@ -239,12 +259,18 @@ class ReLU:
         dz = None
         # =============== EDIT HERE ===============
 
-        dz = d_prev
-        for i in range(0, d_prev.shape[0]):
-            if self.zero_mask[i] == 1:
-                dz[i] = 0
-            else:
-                dz[i] = d_prev[i]
+        dz = np.zeros_like(d_prev)
+        dim = len(d_prev.shape)
+
+        if dim == 1:
+            for i in range(0, d_prev.shape[0]):
+                if self.zero_mask[i] != 1:
+                    dz[i] = d_prev[i]
+        elif dim == 2:
+            for i in range(0, d_prev.shape[0]):
+                for j in range(0, d_prev.shape[1]):
+                    if self.zero_mask[i][j] != 1:
+                        dz[i][j] = d_prev[i][j]
 
         # =========================================
         return dz
@@ -272,9 +298,18 @@ class Sigmoid:
         self.out = None
         # =============== EDIT HERE ===============
 
+        sigmoid = np.zeros_like(z)
+        dim = len(z.shape)
 
+        if dim == 1:
+            for i in range(0, z.shape[0]):
+                sigmoid[i] = 1 / (1 + np.exp(-z[i]))
+        elif dim == 2:
+            for i in range(0, z.shape[0]):
+                for j in range(0, z.shape[1]):
+                    sigmoid[i][j] = 1 / (1 + np.exp(-z[i][j]))
 
-
+        self.out = sigmoid
 
         # =========================================
         return self.out
@@ -343,8 +378,6 @@ class InputLayer:
         self.x = None
         self.out = None
         # =============== EDIT HERE ===============
-
-
 
 
 
