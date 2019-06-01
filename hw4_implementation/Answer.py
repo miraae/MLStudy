@@ -394,7 +394,11 @@ class InputLayer:
         self.out = None
         # =============== EDIT HERE ===============
 
+        self.out = np.zeros((x.shape[0], self.W.shape[1]), float)
 
+        self.x = x
+        z = np.matmul(x, self.W) + self.b
+        self.out = self.act.forward(z)
 
         # =========================================
         return self.out
@@ -418,10 +422,14 @@ class InputLayer:
         self.db = None
         # =============== EDIT HERE ===============
 
+        dz = self.act.backward(d_prev)
+        mul = np.matmul(dz, self.x)
+        self.dW = np.transpose(mul)
 
-
-
-
+        self.db = np.zeros(dz.shape[0])
+        for i in range(0, dz.shape[0]):
+            for j in range(0, dz.shape[1]):
+                self.db[i] += dz[i][j]
 
         # =========================================
 
@@ -473,10 +481,12 @@ class SigmoidOutputLayer:
         eps = 1e-10
         bce_loss = None
         # =============== EDIT HERE ===============
+        '''
+        def binary_crossentropy(y, t):
+            return -tf.reduce_mean(t * tf.log(y + 1e-7) - (1-t) * tf.log(1 - y + 1e-7))
+        '''
 
-
-
-
+        bce_loss = -np.mean(y * np.log(y_hat + eps) + (1-y) * np.log(1 - y_hat + eps))
 
         # =========================================
         return bce_loss
@@ -516,14 +526,64 @@ class SigmoidOutputLayer:
         dx = None
         # =============== EDIT HERE ===============
 
+        '''
+        dz = self.sigmoid.backward(d_prev)
+        mul = np.matmul(dz, self.x)
+        self.dW = np.transpose(mul)
+
+        self.db = np.zeros(dz.shape[0])
+        for i in range(0, dz.shape[0]):
+            for j in range(0, dz.shape[1]):
+                self.db[i] += dz[i][j]
+
+        dx = np.matmul(self.W, dz)
+        dx = np.transpose(dx)
+        '''
 
 
+        '''
+        for i in range(0, outsize):
+            dy_hat[i] = -np.mean(self.y[:][i]/self.y_hat[:][i] - (1-self.y[:][i])/(1-self.y_hat[:][i]))
+            dz[i] = dy_hat[i] * (1-dy_hat[i])
+        '''
+        '''
+        dy_hat = np.zeros(batch_size, float)
+        dz = np.zeros_like(dy_hat)
+        for i in range(0, batch_size):
+            dy_hat[i] = -(self.y[i]/self.y_hat[i] - (1-self.y[i])/(1-self.y_hat[i]))
+        for i in range(0, batch_size):
+            if dy_hat[i] != 0:
+                out = self.y_hat[i]
+                dz[i] = out * (1 - out)
+        dz = np.transpose(dz)
+        mul = np.matmul(dz, self.x)
+        self.dW = np.transpose(mul)
 
+        self.db = [0]
+        for i in range(0, dz.shape[0]):
+                self.db[0] += dz[i]
+        '''
+        '''
+        dy_hat = -np.mean(self.y/self.y_hat - (1-self.y)/(1-self.y_hat))
+        dz = dy_hat * (1-dy_hat)
+        print(dz)
+        '''
+        '''
+        dz = np.zeros(d_prev.shape, float)
 
+        dim = len(d_prev.shape)
+
+        if dim == 1:
+            for i in range(0, d_prev.shape[0]):
+                if d_prev[i] != 0:
+                    out = self.out[i]
+                    dz[i] = out * (1 - out)
+        '''
 
         # =========================================
 
         return dx
+
 
 class HiddenLayer:
     def __init__(self, num_hidden_1, num_hidden_2):
@@ -552,9 +612,11 @@ class HiddenLayer:
         self.out = None
         # =============== EDIT HERE ===============
 
+        self.out = np.zeros((x.shape[0], self.W.shape[1]), float)
 
-
-
+        self.x = x
+        z = np.matmul(x, self.W) + self.b
+        self.out = self.act.forward(z)
 
         # =========================================
         return self.out
@@ -579,11 +641,17 @@ class HiddenLayer:
         self.db = None
         # =============== EDIT HERE ===============
 
+        dz = self.act.backward(d_prev)
+        mul = np.matmul(dz, self.x)
+        self.dW = np.transpose(mul)
 
+        self.db = np.zeros(dz.shape[0])
+        for i in range(0, dz.shape[0]):
+            for j in range(0, dz.shape[1]):
+                self.db[i] += dz[i][j]
 
-
-
-
+        dx = np.matmul(self.W, dz)
+        dx = np.transpose(dx)
 
         # =========================================
         return dx
@@ -635,10 +703,7 @@ class SoftmaxOutputLayer:
         ce_loss = None
         # =============== EDIT HERE ===============
 
-
-
-
-
+        ce_loss = -np.sum(y * np.log(y_hat + eps))
 
         # =========================================
         return ce_loss
@@ -657,8 +722,12 @@ class SoftmaxOutputLayer:
         y_hat = None
         # =============== EDIT HERE ===============
 
-
-
+        z = np.matmul(x, self.W) + self.b
+        z = z - np.max(z, axis=1, keepdims=True)
+        _exp = np.exp(z)
+        _sum = np.sum(_exp, axis=1, keepdims=True)
+        sm = _exp / _sum
+        y_hat = sm
 
         # =========================================
         return y_hat

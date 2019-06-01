@@ -191,8 +191,8 @@ softmax_output_layer = SoftmaxOutputLayer(3, 3)
 softmax_output_layer.W = np.array([[1.12, -2.34, 3.12], [-1, 0.5, -0.13], [1.1, -11, 11]])
 softmax_output_layer.b = np.array([-1, 1, 2])
 
-temp_y_hat = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 1]])
-temp_y = np.array([[0.5, 0.0, 0.1], [0.3, 0.2, 2.1], [3.5, 1.0, 1.1]])
+temp_y_hat = np.array([[0.5, 0.0, 0.1], [0.3, 0.2, 2.1], [3.5, 1.0, 1.1]])
+temp_y = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 1]])
 print('Cross-entropy loss: \n', softmax_output_layer.ce_loss(temp_y_hat, temp_y))
 
 temp8 = np.array([[0, 0, 0], [-1, 1, 0.5]])
