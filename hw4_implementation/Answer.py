@@ -703,7 +703,6 @@ class SoftmaxOutputLayer:
         ce_loss = None
         # =============== EDIT HERE ===============
 
-        # bce_loss = -np.mean(y * np.log(y_hat + eps) + (1-y) * np.log(1 - y_hat + eps))
         ce_loss = -np.sum(y * np.log(y_hat + eps))
 
         # =========================================
