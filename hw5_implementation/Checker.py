@@ -34,6 +34,8 @@ kernel = np.array([[-1, 1, 3],
                    [0.5, 4, 0],
                    [1, 2, -5]])
 conv_out = convolution2d(x, kernel, stride=1)
+
+
 correct = correct_conv2d_out
 diff = correct - conv_out
 
@@ -59,6 +61,7 @@ gray_puppy = np.array(gray_puppy, dtype=np.float32)
 kernel_1 = np.array([[-1, -1, -1],
                      [-1, 8, -1],
                      [-1, -1, -1]])
+
 # Kernel 2. Sharpen
 kernel_2 = np.array([[0, -1, 0],
                      [-1, 5, -1],
@@ -106,7 +109,7 @@ print('Backward: \n', relu.backward(temp3))
 print()
 
 # ===========================================================================
-
+'''
 
 
 print('=========================== 3. Convolution Layer ==========================')
@@ -299,4 +302,5 @@ print('FC - 1 dW, db difference: ',
 # Should be different in the order of 1e-9
 print('Conv - 1 dW, db difference: ',
       (correct_cnn_conv1_dW - CNN.layers['Conv - 1'].dW).sum(), '/', (correct_cnn_conv1_db - CNN.layers['Conv - 1'].db).sum())
+'''
 # ===========================================================================
