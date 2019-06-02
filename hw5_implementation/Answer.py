@@ -37,14 +37,35 @@ def convolution2d(x, kernel, stride):
     conv_out = None
     # =============================== EDIT HERE ===============================
 
+    conv_height = 0
+    conv_width = 0
 
+    if (kernel_size <= stride):
+        conv_height = height//stride
+        conv_width = width//stride
+    else:
+        conv_height = (height//stride) - np.ceil(kernel_size/stride - 1)
+        conv_width = (width//stride) - np.ceil(kernel_size/stride - 1)
 
+    conv_height = int(conv_height)
+    conv_width = int(conv_width)
+    conv_out = np.zeros([conv_height, conv_width])
 
+    xindex = 0
+    yindex = 0
+    for i in range (0, conv_height):
+        for j in range (0, conv_width):
+            partialX = x[yindex:yindex+kernel_size, xindex:xindex+kernel_size]
+            temp = 0.0
+            for a in range (0, kernel_size):
+                for b in range (0, kernel_size):
+                    temp += partialX[a][b] * kernel[a][b]
+            conv_out[i][j] = temp
+            xindex += stride
+        xindex = 0
+        yindex += stride
 
-
-
-
-
+    # print(conv_out)
 
     # =========================================================================
     return conv_out
@@ -79,14 +100,25 @@ class ReLU:
         out = None
         # =============================== EDIT HERE ===============================
 
+        out = np.zeros_like(z)
+        self.zero_mask = np.zeros_like(z)
+        dim = len(z.shape)
 
-
-
-
-
-
-
-
+        if dim == 1:
+            for i in range(0, z.shape[0]):
+                if z[i] < 0:
+                    self.zero_mask[i] = 1
+                    out[i] = 0
+                else:
+                    out[i] = z[i]
+        elif dim == 2:
+            for i in range(0, z.shape[0]):
+                for j in range(0, z.shape[1]):
+                    if z[i][j] < 0:
+                        self.zero_mask[i][j] = 1
+                        out[i][j] = 0
+                    else:
+                        out[i][j] = z[i][j]
 
         # =========================================================================
         return out
@@ -108,12 +140,18 @@ class ReLU:
         dz = None
         # =============================== EDIT HERE ===============================
 
+        dz = np.zeros_like(d_prev)
+        dim = len(d_prev.shape)
 
-
-
-
-
-
+        if dim == 1:
+            for i in range(0, d_prev.shape[0]):
+                if self.zero_mask[i] != 1:
+                    dz[i] = d_prev[i]
+        elif dim == 2:
+            for i in range(0, d_prev.shape[0]):
+                for j in range(0, d_prev.shape[1]):
+                    if self.zero_mask[i][j] != 1:
+                        dz[i][j] = d_prev[i][j]
 
         # =========================================================================
         return dz
@@ -207,7 +245,8 @@ class ConvolutionLayer:
 
         [Output]
         conv_out : convolution result
-        - Shape : (Conv_Height, Conv_Width)
+        - Shape : (Conv_Height, Conv_Width) 아니고
+        - Shape : (Batch size, Out Channel, Conv_Height, Conv_Width)
         - Conv_Height & Conv_Width can be calculated using 'Height', 'Width', 'Kernel size', 'Stride'
         """
         batch_size, in_channel, _, _ = x.shape
