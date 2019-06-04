@@ -22,7 +22,7 @@ np.random.seed(428)
 #                               - 실행 전 구현을 한 후 확인하세요.                                                  #
 #                                                                                                              #
 ################################################################################################################
-
+'''
 print('============================ 1. Convolution 2D ============================')
 # **** Computation Check ****
 # Check numerical difference
@@ -109,7 +109,7 @@ print('Backward: \n', relu.backward(temp3))
 print()
 
 # ===========================================================================
-'''
+
 
 
 print('=========================== 3. Convolution Layer ==========================')
@@ -135,6 +135,7 @@ conv_layer.W[2, 0] = W
 conv_layer.b = b
 
 conv_out = conv_layer.forward(x)
+
 correct = correct_conv_out
 diff = correct - conv_out
 
@@ -152,8 +153,9 @@ print('dx Difference : ', (conv_dx - correct_conv_dx).sum())
 print('dW Difference : ', (conv_dW - correct_conv_dW).sum())
 print('db Difference : ', (conv_db - correct_conv_db).sum())
 print()
-# ===========================================================================
 
+# ===========================================================================
+'''
 
 print('============================ 4. Pooling Layer =============================')
 kernel_size = 2
@@ -162,10 +164,11 @@ x = np.array([[5,   1,  3, 10],
               [-1,  0,  4, -1],
               [-10, -1, 11, 1],
               [0,   1,  -5, 3]], dtype=np.float32).reshape(1, 1, 4, 4)
+'''
 pooled = max_pool.forward(x)
-d_pool = max_pool.backward(np.ones_like(pooled))
-
-print('Difference pool out: ', (correct_pooled - pooled).sum())
+d_pool = max_pool.backward(np.on
+print('Difference pool out: ', (correct_es_like(pooled))
+pooled - pooled).sum())
 print('Difference d_pool: ', (correct_d_pool - d_pool).sum())
 print()
 

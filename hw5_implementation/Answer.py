@@ -261,14 +261,36 @@ class ConvolutionLayer:
         conv = None
         # =============================== EDIT HERE ===============================
 
+        # calculate conv_height & conv_width
+        conv_height = 0
+        conv_width = 0
 
+        if (kernel_size <= stride):
+            conv_height = height // stride
+            conv_width = width // stride
+        else:
+            conv_height = (height // stride) - np.ceil(kernel_size / stride - 1)
+            conv_width = (width // stride) - np.ceil(kernel_size / stride - 1)
 
+        conv_height = int(conv_height)
+        conv_width = int(conv_width)
 
+        '''
+        print("height: ", height, ", width: ", width, ", kernel: ", kernel_size, ", stride: ", stride)
+        print("conv_height: ", conv_height, ", conv_width: ", conv_width)
+        '''
 
-
-
-
-
+        conv = np.zeros((batch_size, out_channel, conv_height, conv_width))
+        for curBat in range(0, batch_size):
+            for curOut in range(0, out_channel):
+                for curIn in range(0, in_channel):
+                    conv[curBat][curOut] += convolution2d(x[curBat][curIn], kernel[curOut][curIn], stride)
+                    '''
+                    print("bat: ", curBat, ", out: ", curOut)
+                    print(conv[curBat][curOut])
+                    '''
+                b = bias[curOut]
+                conv[curBat][curOut][:][:] += b
 
         # =========================================================================
         return conv
@@ -306,25 +328,46 @@ class ConvolutionLayer:
         dx = np.zeros_like(self.x, dtype=np.float64)
         # =============================== EDIT HERE ===============================
 
-        # dW
+        _, _, conv_height, conv_width = d_prev.shape
+
+        stride = self.stride
+
+        # dW, dx, db
+        for curBat in range(0, batch_size):
+            for curOut in range(0, out_channel):
+                for curIn in range(0, in_channel):
+                    xindex = 0
+                    yindex = 0
+                    for i in range(0, conv_height):
+                        for j in range(0, conv_width):
+                            partialX = self.x[curBat][curIn][yindex:yindex + kernel_size, xindex:xindex + kernel_size]
+                            for a in range(0, kernel_size):
+                                for b in range(0, kernel_size):
+                                    self.dW[curOut][curIn][a][b] += (partialX[a][b] * d_prev[curBat][curOut][i][j])
+                                    dx[curBat][curIn][a+yindex][b+xindex] += self.W[curOut][curIn][a][b] * d_prev[curBat][curOut][i][j]
+                            self.db[curOut] += d_prev[curBat][curOut][i][j]
+                            xindex += stride
+                        xindex = 0
+                        yindex += stride
 
 
-
+        # print(self.dW)
+        # print(dx)
+        # print(self.db)
 
         # db
-
-
-
-
-        # dx
-
-
-
+        '''
+        for curBat in range(0, batch_size):
+            for curOut in range(0, out_channel):
+                for i in range(0, conv_height):
+                    for j in range(0, conv_width):
+                        self.db[curOut] += d_prev[curBat][curOut][i][j]
+        '''
 
         # =========================================================================
         return dx
 
-    def zero_pad(self, x, pad):
+    def fozero_pad(self, x, pad):
         """
         Zero padding
         Given x and pad value, pad input 'x' around height & width.
